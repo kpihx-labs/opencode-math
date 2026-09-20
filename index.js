@@ -5,13 +5,13 @@ export default async function (input) {
     "experimental.chat.messages.transform": async (_input, output) => {
       const messages = output.messages || [];
       for (const msg of messages) {
-        if (msg.info?.role === "assistant" && Array.isArray(msg.parts)) {
+        if (Array.isArray(msg.parts)) {
           for (const part of msg.parts) {
             if (part && part.type === "text" && typeof part.text === "string") {
               try {
                 part.text = transform_markdown(part.text);
               } catch (e) {
-                // Ignore error on invalid math
+                // Ignore error on malformed input
               }
             }
           }
