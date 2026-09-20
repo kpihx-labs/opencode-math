@@ -1,51 +1,26 @@
-/**
- * @kpihx-labs/opencode-math
- *
- * OpenCode TUI plugin: High-performance LaTeX math rendering to Unicode
- * using the sovereign Rust WASM core `latex-to-unicode`.
- */
+import { transform_markdown } from "../wasm-pkg/latex_to_unicode_wasm.js";
 
-import { transform_markdown, latex_to_unicode } from "./wasm-pkg/latex_to_unicode_wasm.js";
-
-export const OpencodeMathPlugin = async () => {
+export const OpencodeMathHook = async () => {
   return {
-    name: "opencode-math",
+    name: "opencode-math-hook",
 
-    /**
-     * Intercept and transform assistant messages before rendering in TUI
-     */
-    async "chat.message"(message) {
-      if (message && message.role === "assistant" && typeof message.content === "string") {
-        try {
-          message.content = transform_markdown(message.content);
-        } catch (err) {
-          // Graceful fallback to raw content on any error
+    async "experimental.chat.messages.transform"({ messages }) {
+      if (!messages || !Array.isArray(messages)) return;
+      for (const msg of messages) {
+        if (msg.role === "assistant" && Array.isArray(msg.content)) {
+          for (const part of msg.content) {
+            if (part && part.type === "text" && typeof part.text === "string") {
+              try {
+                part.text = transform_markdown(part.text);
+              } catch (e) {
+                // Ignore error
+              }
+            }
+          }
         }
-      }
-      return message;
-    },
-
-    /**
-     * Text processor helper for extensions
-     */
-    transform(text) {
-      if (!text || typeof text !== "string") return text;
-      try {
-        return transform_markdown(text);
-      } catch (e) {
-        return text;
-      }
-    },
-
-    transformFormula(latex) {
-      if (!latex || typeof latex !== "string") return latex;
-      try {
-        return latex_to_unicode(latex);
-      } catch (e) {
-        return latex;
       }
     }
   };
 };
 
-export default OpencodeMathPlugin;
+export default OpencodeMathHook;
