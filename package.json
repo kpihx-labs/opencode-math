@@ -1,0 +1,17 @@
+{
+  "name": "@kpihx-labs/opencode-math",
+  "version": "0.1.0",
+  "description": "OpenCode TUI plugin: High-performance LaTeX math rendering to Unicode in terminal using Rust WASM.",
+  "main": "index.js",
+  "type": "module",
+  "author": "Ivann H. KAMDEM POUOKAM (KpihX) <kapoivha@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "opencode",
+    "plugin",
+    "latex",
+    "unicode",
+    "math",
+    "tui"
+  ]
+}
