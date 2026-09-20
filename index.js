@@ -1,26 +1,23 @@
-import { transform_markdown } from "../wasm-pkg/latex_to_unicode_wasm.js";
+import { transform_markdown } from "./wasm-pkg/latex_to_unicode_wasm.js";
 
-export const OpencodeMathHook = async () => {
+export default async function (input) {
   return {
-    name: "opencode-math-hook",
-
-    async "experimental.chat.messages.transform"({ messages }) {
-      if (!messages || !Array.isArray(messages)) return;
+    "experimental.chat.messages.transform": async (_input, output) => {
+      const messages = output.messages || [];
       for (const msg of messages) {
-        if (msg.role === "assistant" && Array.isArray(msg.content)) {
-          for (const part of msg.content) {
+        if (msg.info?.role === "assistant" && Array.isArray(msg.parts)) {
+          for (const part of msg.parts) {
             if (part && part.type === "text" && typeof part.text === "string") {
               try {
                 part.text = transform_markdown(part.text);
               } catch (e) {
-                // Ignore error
+                // Ignore error on invalid math
               }
             }
           }
         }
       }
-    }
+      return output;
+    },
   };
-};
-
-export default OpencodeMathHook;
+}
